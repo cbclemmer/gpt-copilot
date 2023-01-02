@@ -1,0 +1,12 @@
+Needs to syncronize with open ai periodically
+Needs to be able to answer questions about a file without uploading it for each question
+    Can use a hash to determine if the file was changed
+
+Should not upload too much text
+Use "git diff" to upload changes to the document whenever a new commit is made
+Should keep the output of whenever a file is uploaded or changed
+
+
+print file at commit: git show 91990a93c193d8c974016e556b2555445b7a3d89:src/Editor.ts
+
+get the hash of the last git commit: git log -1 | awk 'NR==1{ print $2}'

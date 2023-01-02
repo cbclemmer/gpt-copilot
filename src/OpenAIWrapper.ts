@@ -5,6 +5,8 @@ import { IEditor } from './Editor'
 export interface IOpenAIWrapper {
   makeRequestWithLoadingIndicator: (text: string, editor: IEditor) => Promise<string | undefined>
   makeRequest: (text: string, editor: IEditor) => Promise<string | undefined>
+  saveNewFile: (filePath: string, fileContents: string, editor: IEditor) => Promise<string | undefined>
+  updateFile(filePath: string, fileDiff: string, editor: IEditor): Promise<string | undefined>
 }
 
 export class OpenAIWrapper implements IOpenAIWrapper {
@@ -38,4 +40,22 @@ export class OpenAIWrapper implements IOpenAIWrapper {
     })
     return response.data.choices[0].text
   }
+
+  async saveNewFile(filePath: string, fileContents: string, editor: IEditor): Promise<string | undefined> {
+    const text = `
+      This is a new file: ${filePath}
+      Here is the contents of the file:
+      ${fileContents}
+    `
+    return await this.makeRequestWithLoadingIndicator(text, editor)
+  }
+
+  async updateFile(filePath: string, fileDiff: string, editor: IEditor): Promise<string | undefined> {
+    const text = `
+    The contents of ${filePath} have been updated
+    This is the difference:
+    ${fileDiff}
+    `
+    return await this.makeRequestWithLoadingIndicator(text, editor)
+  } 
 }

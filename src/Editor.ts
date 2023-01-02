@@ -1,10 +1,13 @@
 import * as vscode from 'vscode'
+import * as path from 'path'
 
 export interface IEditor {
   writeToConsole: (text: string) => void
   getUserInput: (prompt: string, placeHolder: string, errorText: string, password?: boolean) => Promise<string | undefined>
   showErrorMessage: (message: string) => void
+  showMessage: (message: string) => void
   getCurrentFileContents: () => string
+  getCurrentFilePath: () => string | null
   getCurrentFileExtension: () => string
   getHighlightedText: () => string
   getSecret: (key: string) => Promise<string | undefined>
@@ -45,11 +48,27 @@ export class Editor implements IEditor {
     void vscode.window.showErrorMessage(message)
   }
 
+  showMessage (message: string): void {
+    void vscode.window.showInformationMessage(message)
+  }
+
   getCurrentFileContents (): string {
     const editor = vscode.window.activeTextEditor
     if (editor != null) {
       const document = editor.document
       return document.getText()
+    }
+    return ''
+  }
+
+  getCurrentFilePath (): string | null {
+    const editor = vscode.window.activeTextEditor
+    if (editor != null) {
+      const filePath = editor.document.fileName
+      const rootPath = vscode.workspace.rootPath
+      return rootPath === undefined
+        ? null
+        : path.relative(rootPath, filePath)
     }
     return ''
   }

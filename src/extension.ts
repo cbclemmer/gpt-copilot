@@ -5,6 +5,7 @@ import { askAboutSelectionCommand } from './commands/askAboutSelection'
 import { explainFileCommand } from './commands/explainFile'
 import { askAboutFileCommand } from './commands/askAboutFile'
 import { askAnythingCommand } from './commands/askAnything'
+import { syncFile } from './commands/syncFile'
 import { Editor } from './Editor'
 import { OpenAIWrapper } from './OpenAIWrapper'
 
@@ -37,10 +38,15 @@ export async function activate (context: vscode.ExtensionContext): Promise<void>
     await askAnythingCommand(editor, OpenAiAPI)
   })
 
+  const syncFileCmd = vscode.commands.registerCommand('gpt-copilot.sync_file', async () => {
+    await syncFile(editor, OpenAiAPI)
+  })
+
   subscriptions.push(setup)
   subscriptions.push(explainSelection)
   subscriptions.push(askAboutSelection)
   subscriptions.push(explainFile)
   subscriptions.push(askAboutFile)
   subscriptions.push(askAnything)
+  subscriptions.push(syncFileCmd)
 }
