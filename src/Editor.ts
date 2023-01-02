@@ -65,10 +65,10 @@ export class Editor implements IEditor {
     const editor = vscode.window.activeTextEditor
     if (editor != null) {
       const filePath = editor.document.fileName
-      const rootPath = vscode.workspace.rootPath
-      return rootPath === undefined
+      const rootPath = vscode.workspace.workspaceFolders
+      return rootPath === undefined || rootPath.length === 0
         ? null
-        : path.relative(rootPath, filePath)
+        : path.relative(rootPath[0].name, filePath)
     }
     return ''
   }
