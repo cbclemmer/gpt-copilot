@@ -1,9 +1,15 @@
-import { exec } from 'child_process';
+import { exec } from 'child_process'
 import * as fs from 'fs'
+import * as vscode from 'vscode'
+
+const getRootFolder = () => !!vscode.workspace.workspaceFolders
+  ? vscode.workspace.workspaceFolders[0].uri.path
+  : ''
 
 export async function executeCommand(command: string): Promise<string> {
   return new Promise((resolve, reject) => {
-    exec(command, (error, stdout, stderr) => {
+    const cmd = `(cd ${getRootFolder()} && ${command})`
+    exec(cmd, (error, stdout, stderr) => {
       if (error) {
         reject(error);
       } else {
@@ -14,15 +20,20 @@ export async function executeCommand(command: string): Promise<string> {
 }
 
 export async function getLastCommitHash(): Promise<string> {
-    return await executeCommand(`git log -1 | awk 'NR==1{ print $2}'`)
+  const hash = await executeCommand(`git log -1 | awk 'NR==1{ print $2}'`)
+  return hash.substring(0, hash.length - 1)
 }
 
 export async function getFileContentsAtLastCommit(file: string): Promise<string | null> {
     const hash = await getLastCommitHash()
-    const output = await executeCommand(`git show ${hash}:${file}`)
-    return output.includes(hash)
-        ? null
-        : output
+    try {
+      const output = await executeCommand(`git show ${hash}:${file}`)
+      return output.includes(hash)
+          ? null
+          : output
+    } catch (e) {
+      return null
+    }
 }
 
 export async function getFileDifferenceFromCommit(file: string, hash: string): Promise<string> {
@@ -85,16 +96,24 @@ async function saveValueToJsonFile(filePath: string, key: string, value: any): P
 }
 
 export async function getFileHash(path: string): Promise<string | null> {
+  const vscodeFolder = `${getRootFolder()}/.vscode`
+  if (!fs.existsSync(vscodeFolder)) {
+    fs.mkdirSync(vscodeFolder)
+  }
   try {
-    return await getValueFromJsonFile('openAiSyncData.json', path)
+    return await getValueFromJsonFile(`${vscodeFolder}/openAiSyncData.json`, path)
   } catch (e) {
     return null
   }  
 }
 
 export async function updateFileHash(path: string, hash: string): Promise<void> {
+  const vscodeFolder = `${getRootFolder()}/.vscode`
+  if (!fs.existsSync(vscodeFolder)) {
+    fs.mkdirSync(vscodeFolder)
+  }
   try {
-    await saveValueToJsonFile('openAiSyncData.json', path, hash)
+    await saveValueToJsonFile(`${vscodeFolder}/openAiSyncData.json`, path, hash)
   } catch (e) {
     return
   }

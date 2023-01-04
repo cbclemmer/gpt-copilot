@@ -30,11 +30,13 @@ export class OpenAIWrapper implements IOpenAIWrapper {
       organization: editor.getConfigValue('organization')
     })
     const openai = new OpenAIApi(config)
+    if (!vscode.workspace.workspaceFolders) return undefined
+
     const response = await openai.createCompletion({
       prompt: text,
-      max_tokens: editor.getConfigValue('maxTokens'),
-      temperature: editor.getConfigValue('temperature'),
-      model: editor.getConfigValue('model'),
+      max_tokens: 2000,
+      temperature: .5,
+      model: 'text-davinci-003',
       n: 1,
       stream: false
     })

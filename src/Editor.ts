@@ -68,7 +68,7 @@ export class Editor implements IEditor {
       const rootPath = vscode.workspace.workspaceFolders
       return rootPath === undefined || rootPath.length === 0
         ? null
-        : path.relative(rootPath[0].name, filePath)
+        : path.relative(rootPath[0].uri.path, filePath)
     }
     return ''
   }
